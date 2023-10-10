@@ -18,11 +18,11 @@ class Shape:
 
     def compare(self, other):
         if self.square() == other.square():
-            return "The areas are equal."
+            return "Фигуры равны"
         elif self.square() > other.square():
-            return "The first shape is larger."
+            return "Первая фигура больше."
         else:
-            return "The second shape is larger."
+            return "Вторая фгура больше."
 
     def is_intersect(self, other):
         return (other.x >= self.x and other.y >= self.y) or (self.x >= other.x and self.y >= other.y)
