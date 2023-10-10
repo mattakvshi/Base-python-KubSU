@@ -38,4 +38,4 @@ m = int(input("Введите количество столбцов: "))
 matrix = create_matrix(n, m)
 
 for i in matrix:
-    print(i)
+    print('\t'.join(map(str, i)))
