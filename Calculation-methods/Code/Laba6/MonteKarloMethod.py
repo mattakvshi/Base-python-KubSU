@@ -3,6 +3,12 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+def absolute_relative_error(true_value, approx_value):
+    absolute_error = abs(abs(true_value) - approx_value)
+    relative_error = abs(absolute_error / true_value if true_value != 0 else 0)
+    return absolute_error, relative_error
+
 # Задание 1
 def calculate_triangle_area(n):
     # 1. Построить график функции y = f1(x), y=f2(x). Определить размеры a и b прямоугольника, в котором целиком лежит фигура.
@@ -12,7 +18,7 @@ def calculate_triangle_area(n):
     def f2(x):
         return 10 * (x - 20) / (n - 20) + 20
 
-    x = np.linspace(0, 20, 100)
+    x = np.linspace(0, 22, 110)
     y1 = f1(x)
     y2 = f2(x)
     plt.plot(x, y1, label='y = f1(x)')
@@ -60,15 +66,20 @@ def calculate_triangle_area(n):
 
     # 5. Вычислить приближенно площадь фигуры.
     area = (points_inside / N) * (a * b)
+    area_true = abs(n * (a - b)) - 99
+
+    # # Шаг 6: Оценка погрешности метода Монте-Карло
+    # absolute_error = abs(area - (n * (a - b)))
+    # if (n * (a - b)) != 0:
+    #     relative_error = absolute_error / abs((n * (a - b)))
+    # else:
+    #     relative_error = 0
+    #
+    # return area, points_inside, absolute_error, relative_error
 
     # Шаг 6: Оценка погрешности метода Монте-Карло
-    absolute_error = abs(area - (n * (a - b)))
-    if (n * (a - b)) != 0:
-        relative_error = absolute_error / abs((n * (a - b)))
-    else:
-        relative_error = 0
-
-    return area, points_inside, absolute_error, relative_error
+    abs_error, rel_error = absolute_relative_error(area_true, area)
+    return area, area_true, points_inside, abs_error, rel_error
 
 
 
@@ -126,15 +137,22 @@ def monte_carlo_integration(n):
     plt.show()
 
 
+    # # Шаг 6: Оценка погрешности метода Монте-Карло
+    # absolute_error = abs(integral - (n * (a - b)))
+    # if (n * (a - b)) != 0:
+    #     relative_error = absolute_error / abs((n * (a - b)))
+    # else:
+    #     relative_error = 0
+    #
+    #
+    # return integral, points_inside, absolute_error, relative_error
+
+
+    area_true = abs(n * (a - b)) / 4
+
     # Шаг 6: Оценка погрешности метода Монте-Карло
-    absolute_error = abs(integral - (n * (a - b)))
-    if (n * (a - b)) != 0:
-        relative_error = absolute_error / abs((n * (a - b)))
-    else:
-        relative_error = 0
-
-
-    return integral, points_inside, absolute_error, relative_error
+    abs_error, rel_error = absolute_relative_error(area_true, integral)
+    return integral, area_true, points_inside, abs_error, rel_error
 
 
 # Задание 3
@@ -177,8 +195,11 @@ def calculate_pi(n):
 
     # Вычисляем приближенное значение числа Пи
     pi_approx = 4 * (M / N) * 4.04
-    return pi_approx, M
+    # return pi_approx, M
 
+    # Оценка погрешности метода Монте-Карло
+    abs_error, rel_error = absolute_relative_error(math.pi, pi_approx)
+    return pi_approx, M, abs_error, rel_error
 
 # Задание 4
 def calculate_polar_area(n):
@@ -198,6 +219,7 @@ def calculate_polar_area(n):
 
     N = 1000  # Количество точек
     points_inside = 0
+    width, height = [-25.0, 25.0], [-1, 1]
 
 
     for _ in range(N):
@@ -211,17 +233,53 @@ def calculate_polar_area(n):
             points_inside += 1
             plt.scatter(x, y, color='g')
 
+    def create_curve():
+        # p = math.pi
+        # t = np.linspace(0, 2 * np.pi, 1000)
+        # x = np.sqrt(p ** 2 / 21) * np.cos(t)
+        # y = np.sqrt(p ** 2) * np.sin(t)
+        # return x, y
+        t = np.linspace(0, 2 * np.pi, 1000)
+        x = a * np.cos(t)
+        y = b * np.sin(t)
+        return x, y
 
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title('Фигура ограниченна замкнутой линией.')
-    plt.legend()
-    plt.show()
+    def create_random_points(width, height, number):
+        array_of_points = []
+        for i in range(number):
+            temp_x = random.uniform(width[0], width[1])
+            temp_y = random.uniform(height[0], height[1])
+            temp_tuple = (temp_x, temp_y)
+            array_of_points.append(temp_tuple)
+        return array_of_points
+
+
+    def graph(x, y, array_of_points):
+        x_r, y_r = [], []
+        for i in range(len(array_of_points)):
+            x_r.append(array_of_points[i][0])
+            y_r.append(array_of_points[i][1])
+        plt.plot(x, y, label="1", color="red")
+        plt.xlabel("X")
+        plt.ylabel("Y")
+        plt.title('Фигура ограниченна замкнутой линией.')
+        plt.grid(True)
+        plt.show()
+
+
+    x, y = create_curve()
+    curve_points = list(zip(x, y))
+    random_points = create_random_points(width, height, N)
+    graph(x, y, random_points)
 
 
     area = (points_inside / N) * (2 * a * b)
-    return area, points_inside
+    area_true = abs( math.pi * a * b) / 2
+    # return area, points_inside
 
+    # Оценка погрешности метода Монте-Карло
+    abs_error, rel_error = absolute_relative_error(area_true, area)
+    return area, area_true, points_inside, abs_error, rel_error
 
 
 def main():
@@ -229,39 +287,46 @@ def main():
     n = 17
 
 
-    area1, points_inside1, absolute_error1, relative_error1 = calculate_triangle_area(n)
+    area1, area_true1, points_inside1, absolute_error1, relative_error1 = calculate_triangle_area(n)
     print("Задание 1:")
     print("==========")
-    print(f'Площадь фигуры: {area1:.2f}')
+    print(f'Площадь приближённая: {area1:.2f}')
+    print(f'Площадь фигуры точная: {area_true1:.2f}')
     print(f"Случайных точек внутри фигуры: {points_inside1}")
     print(f"Абсолютная погрешность: {absolute_error1}")
     print(f"Относительная погрешность: {relative_error1}")
     print("\n")
 
 
-    integral2, points_inside2, absolute_error2, relative_error2 = monte_carlo_integration(n)
+    integral2, area_true2, points_inside2, absolute_error2, relative_error2 = monte_carlo_integration(n)
     print("Задание 2:")
     print("==========")
     print(f"Приближенное значение интеграла (Площадь фигуры): {integral2:.4f}")
+    print(f'Площадь фигуры точная: {area_true2:.2f}')
     print(f"Случайных точек внутри фигуры: {points_inside2}")
     print(f"Абсолютная погрешность: {absolute_error2}")
     print(f"Относительная погрешность: {relative_error2}")
     print("\n")
 
 
-    pi_approx3, points_inside3 = calculate_pi(n)
+    pi_approx3, points_inside3, absolute_error3, relative_error3 = calculate_pi(n)
     print("Задание 3:")
     print("==========")
     print(f"Приближенное значение числа Пи: {pi_approx3:.4f}")
     print(f"Случайных точек внутри фигуры: {points_inside3}")
+    print(f"Абсолютная погрешность: {absolute_error3}")
+    print(f"Относительная погрешность: {relative_error3}")
     print("\n")
 
 
-    area4, points_inside4 = calculate_polar_area(n)
+    area4, area_true4, points_inside4, absolute_error4, relative_error4 = calculate_polar_area(n)
     print("Задание 4:")
     print("==========")
     print(f"Площадь фигуры: {area4:.2f}")
+    print(f'Площадь фигуры точная: {area_true4:.2f}')
     print(f"Случайных точек внутри фигуры: {points_inside4}")
+    print(f"Абсолютная погрешность: {absolute_error4}")
+    print(f"Относительная погрешность: {relative_error4}")
     print("\n")
 
 
