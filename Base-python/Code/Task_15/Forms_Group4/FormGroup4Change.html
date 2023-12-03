@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang = "ru">
+    <head>
+        <meta charset = "UTF-8">
+        <title>Таблица Group4</title>
+        <style>
+            body
+            {
+                font-family: Microsoft YaHei UI, sans-serif;
+                color: rgb(130, 130, 130);
+                text-align: center;
+            }
+
+            button, input
+            {
+                color: rgb(0, 165, 80);
+            }
+
+            button:hover, input:hover
+            {
+                transform: scale(1.1);
+            }
+
+            .buttonWrapper
+            {
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <h1>Введите данные в поля, чтобы изменить запись в БД</h1>
+            <p>Для обновления заполните все поля, а для удаления - только Id</p>
+        </div>
+        <div>
+            <form method = "POST" action = "../cgi-bin/Forms_Group4/FormGroup4Change.py">
+                <div>
+                    <p class = "buttonWrapper" style = "margin-right: 100px;">Id</p>
+                    <p class = "buttonWrapper" style = "margin-right: 75px;">SurnameListener</p>
+                    <p class = "buttonWrapper" style = "margin-right: 50px;">NameListener</p>
+                    <p class = "buttonWrapper" style = "margin-right: 80px;">PatronymicListener</p>
+                    <p class = "buttonWrapper" style = "margin-right: 75px;">IdListener</p>
+                </div>
+                <input type = "text" name = "Id">
+                <input type = "text" name = "SurnameListener">
+                <input type = "text" name = "NameListener">
+                <input type = "text" name = "PatronymicListener">
+                <input type = "text" name = "IdListener">
+                <input type = "submit" value = "Изменит запись">
+            </form>
+            <div class = "buttonWrapper" style = "margin-right: 200px;">
+                <a href = "http://localhost:8080/Main.html"><button>Назад</button></a>
+            </div>
+            <div class = "buttonWrapper">
+                <p>Другие действия с этой же таблицей</p>
+                <a href = "http://localhost:8080/Forms_Group4/FormGroup4Show.html"><button>Показать данные</button></a>
+                <a href = "http://localhost:8080/Forms_Group4/FormGroup4Insert.html"><button>Вставить данные</button></a>
+            </div>
+        </div>
+    </body>
+</html>
