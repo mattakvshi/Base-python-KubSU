@@ -1,0 +1,160 @@
+Напиши SQL код для создания следующей структуры бд:
+
+Таблица: User
+PK user_id int NOT NULL AUTO INCREMENT
+first_name char(50) NOT NULL
+last_name char(50) NOT NULL
+birthday date 
+user_age int 
+registration_date date NOT NULL
+country char(50) 
+city char(50) 
+district char(50) 
+FK1 authorization_data_id  int NOT NULL
+FK2 notificarion_option_id  int NOT NULL
+FK3 subscribers_subscririons_id  int NOT NULL
+
+Таблица: Community
+PK community_id int NOT NULL AUTO INCREMENT
+community_name char(240) NOT NULL
+community_description VARCHAR NOT NULL
+country char(50) 
+city char(50) 
+district char(50) 
+FK1 community_authorization_data_id  int NOT NULL
+FK2 monitoring_option_id int NOT NULL
+FK3 subscribers_subscririons_id int NOT NULL
+
+Таблица: Authorization_data
+PK authorization_data_id int NOT NULL
+FK1  user_id int NOT NULL
+user_email char(50) NOT NULL
+encoded_user_password char(100) NOT NULL
+
+Таблица: Community_authorization_data
+PK community_authorization_data_id int NOT NULL
+FK1 community_id int NOT NULL
+community_email char(50) NOT NULL
+community_encoded_password char(100) NOT NULL
+
+Таблица: Notification_options_Users
+PK notification_option_id int NOT NULL
+FK1 user_id int NOT NULL
+FK2 option_id int NOT NULL
+
+Таблица: Notification_options
+PK option_id int NOT NULL
+FK1 notification_option_id int NOT NULL
+option_name char(50) NOT NULL
+
+Таблица: Monitored_emergency_Community
+PK monitoring_option_id int NOT NULL
+FK1 community_id int NOT NULL
+FK2 emergency_id int NOT NULL
+
+Таблица: Monitored_emergency
+PK emergency_id int NOT NULL
+FK1 monitoring_option_id int NOT NULL
+emergency_name char(50) NOT NULL
+
+Таблица: Subscriber_subscribtion_list
+PK subscribers_subscririons_id int NOT NULL|
+FK1 user_id int NOT NULL
+FK2 communiti_id int NOT NULL
+
+
+-- Создание таблицы User
+CREATE TABLE User (
+    user_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    first_name CHAR(50) NOT NULL,
+    last_name CHAR(50) NOT NULL,
+    birthday DATE,
+    user_age INT,
+    registration_date DATE NOT NULL,
+    country CHAR(50),
+    city CHAR(50),
+    district CHAR(50),
+    authorization_data_id INT NOT NULL,
+    notification_option_id INT NOT NULL,
+    subscribers_subscririons_id INT NOT NULL,
+    FOREIGN KEY (authorization_data_id) REFERENCES Authorization_data(authorization_data_id),
+    FOREIGN KEY (notification_option_id) REFERENCES Notification_options_Users(notification_option_id),
+    FOREIGN KEY (subscribers_subscririons_id) REFERENCES Subscriber_subscribtion_list(subscribers_subscririons_id)
+);
+
+-- Создание таблицы Community
+CREATE TABLE Community (
+    community_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    community_name CHAR(240) NOT NULL,
+    community_description VARCHAR(255) NOT NULL,
+    country CHAR(50),
+    city CHAR(50),
+    district CHAR(50),
+    community_authorization_data_id INT NOT NULL,
+    monitoring_option_id INT NOT NULL,
+    subscribers_subscririons_id INT NOT NULL,
+    FOREIGN KEY (community_authorization_data_id) REFERENCES Community_authorization_data(community_authorization_data_id),
+    FOREIGN KEY (monitoring_option_id) REFERENCES Monitored_emergency_Community(monitoring_option_id),
+    FOREIGN KEY (subscribers_subscririons_id) REFERENCES Subscriber_subscribtion_list(subscribers_subscririons_id)
+);
+
+-- Создание таблицы Authorization_data
+CREATE TABLE Authorization_data (
+    authorization_data_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    user_email CHAR(50) NOT NULL,
+    encoded_user_password CHAR(100) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
+
+-- Создание таблицы Community_authorization_data
+CREATE TABLE Community_authorization_data (
+    community_authorization_data_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    community_id INT NOT NULL,
+    community_email CHAR(50) NOT NULL,
+    community_encoded_password CHAR(100) NOT NULL,
+    FOREIGN KEY (community_id) REFERENCES Community(community_id)
+);
+
+-- Создание таблицы Notification_options_Users
+CREATE TABLE Notification_options_Users (
+    notification_option_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    option_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (option_id) REFERENCES Notification_options(option_id)
+);
+
+-- Создание таблицы Notification_options
+CREATE TABLE Notification_options (
+    option_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    notification_option_id INT NOT NULL,
+    option_name CHAR(50) NOT NULL,
+    FOREIGN KEY (notification_option_id) REFERENCES Notification_options_Users(notification_option_id)
+);
+
+-- Создание таблицы Monitored_emergency_Community
+CREATE TABLE Monitored_emergency_Community (
+    monitoring_option_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    community_id INT NOT NULL,
+    emergency_id INT NOT NULL,
+    FOREIGN KEY (community_id) REFERENCES Community(community_id),
+    FOREIGN KEY (emergency_id) REFERENCES Monitored_emergency(emergency_id)
+);
+
+-- Создание таблицы Monitored_emergency
+CREATE TABLE Monitored_emergency (
+    emergency_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    monitoring_option_id INT NOT NULL,
+    emergency_name CHAR(50) NOT NULL,
+    FOREIGN KEY (monitoring_option_id) REFERENCES Monitored_emergency_Community(monitoring_option_id)
+);
+
+-- Создание таблицы Subscriber_subscribtion_list
+CREATE TABLE Subscriber_subscribtion_list (
+    subscribers_subscririons_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    communiti_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (communiti_id) REFERENCES Community(community_id)
+);
