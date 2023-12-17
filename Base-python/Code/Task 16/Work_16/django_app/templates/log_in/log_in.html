@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+        <link rel="stylesheet" href="{% static 'css/su_li_pr.css' %}" />
+        <script src="{% static 'js/show_hide_password.js' %}" defer></script>
+        <title>Страница авторизации</title>
+        <style>
+            .cont{
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                row-gap: 20px;
+            }
+            .container
+            {
+                padding: 20px;
+                border: none;
+                color: #0A1F32;
+                background-color: #D2D2D2;
+                border-radius: 20px;
+                width: auto;
+                margin: auto;
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                row-gap: 10px;
+            }
+
+            .container form input
+            {
+                width: 450px;
+                height: 45px;
+                background-color: transparent;
+                border: 1px solid #344756;
+                border-radius: 5px;
+                color: #0A1F32;
+                font-size: 15px;
+                text-align: center;
+            }
+
+            button
+            {
+                font-family: Microsoft YaHei UI, sans-serif;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                margin: 4px 2px;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: transform 0.5s;
+            }
+
+            button:hover
+            {
+                transform: scale(1.1);
+            }
+
+            .eye{
+                width: 40px;
+                height: 40px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .pass-row{
+                display: flex;
+                flex-direction: row;
+                column-gap: 10px;
+                justify-content: center;
+                align-items: center;
+                margin-left: 20px;
+            }
+        </style>
+    </head>
+    <body style="background-color: #0A1F32" >
+        <div class="cont" style="width: 97vw; height: 97vh;">
+            <h3 style="font-size: 60px; font-weight: 700; color: #D2D2D2">Форма для авторизации</h3>
+            <div class="container"8>
+                <form action="log_in_sending" method="POST">
+                    {% csrf_token %}
+                    <p>Почта</p>
+                    <div class="pass-row">
+                        <input name="email" type="email">
+                        <button class="eye btn btn-primary" style="pointer-events: none; font-size: 30px; color: #D2D2D2; background-color: #D2D2D2; border-color: #D2D2D2;" type="button">👁</button>
+                    </div>
+                    <p>Пароль</p>
+                    <div class="pass-row">
+                         <input id="passwordInput" name="password" type="password">
+                        <button id="toggleButton" class="eye btn btn-primary" style=" font-size: 30px; color: #D2D2D2; background-color: #344756; border-color: #344756;" type="button">👁</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="margin-top: 40px; color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;">Авторизоваться</button>
+                    <h5>Ещё не зарегистрированы? <a href="http://127.0.0.1:8000/sign_up/" style="color: #FF4C2B;">Зарегистрируйтесь</a></h5>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

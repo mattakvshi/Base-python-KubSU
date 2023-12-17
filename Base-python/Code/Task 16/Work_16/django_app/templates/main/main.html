@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+        <link rel="stylesheet" href="{% static 'css/home.css' %}" />
+        <title>Рабочая страница</title>
+        <style>
+            form {
+                row-gap: 20px;
+            }
+            .user
+            {
+                display: flex;
+                flex-direction: row;
+                column-gap: 20px;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            .backdoor
+            {
+                position: absolute;
+                right: 25px;
+                top: 25px;
+            }
+            h3
+            {
+                color: orange;
+                margin-top: 0px;
+            }
+            .horizontal-zone
+            {
+                width: 75%;
+                display: flex;
+                justify-content: space-evenly;
+                gap: 35px;
+                margin-left: auto;
+                margin-right: auto;
+                border: 3px solid #2D384A;
+                border-radius: 10px;
+            }
+            .vertical-zone
+            {
+                height: 75px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            select
+            {
+                width: 175px;
+                margin-top: -8px;
+                padding: 5px;
+                border: 1px solid gray;
+                border-radius: 5px;
+                outline: none;
+                font-family: Microsoft YaHei UI;
+                font-size: 16px;
+                background-color: #999;
+                -webkit-appearance: none;
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill="black"><path d="M0 6 L4 2 L8 6 z" /></svg>');
+                background-repeat: no-repeat;
+                background-position: right 0.5em top 50%;
+            }
+            select:focus
+            {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill="black"><path d="M0 2 L4 6 L8 2 z" /></svg>');
+            }
+            .textarea
+            {
+                width: 75%;
+                overflow: auto;
+                margin-top: 3px;
+                margin-left: auto;
+                margin-right: auto;
+                height: 600px;
+                border: 3px solid #2D384A;
+                border-radius: 10px;
+                color: white;
+                font-size: 15px;
+            }
+            table
+            {
+                border-collapse: collapse;
+            }
+            table td
+            {
+                border: 2px solid white;
+                border-radius: 20px;
+                word-break: break-word;
+            }
+        </style>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    </head>
+    <body style="background-color: #D2D2D2; color: #0A1F32;">
+        <div class="user">
+            <h4>Ваша почта: </h4>
+            <div style="color: #FF4C2B; font-weight: 500; font-size: 22px;">{{ user_email }}</div>
+            <h4>Ваш ID: </h4>
+             <div style=" color: #FF4C2B; font-weight: 500; font-size: 22px;">{{ user_id }}</div>
+        </div>
+        <div class="backdoor">
+            <a href="http://127.0.0.1:8000/" style="color: orange; text-decoration: none;"><button class="btn btn-primary" style="color: #D2D2D2; background-color: #344756; border-color: #344756;">Выйти из учётной записи</button></a>
+        </div>
+        <div class="p-4">
+            <form action="main_sending" method="POST" class=" d-flex justify-content-center align-items-center flex-column">
+                {% csrf_token %}
+                <div class="horizontal-zone p-3 d-flex justify-content-space-between align-items-center">
+                    <div class="vertical-zone">
+                        <h3>Таблица</h3>
+                        <select name="table">
+                            <option value="Subjects">Subjects</option>
+                            <option value="Teachers">Teachers</option>
+                            <option value="Listeners">Listeners</option>
+                            <option value="AcademicRecords">AcademicRecords</option>
+                            <option value="Group1">Group1</option>
+                            <option value="Group2">Group2</option>
+                            <option value="Group3">Group3</option>
+                            <option value="Group4">Group4</option>
+                            <option value="Group5">Group5</option>
+                            <option value="Users">Users</option>
+                        </select>
+                    </div>
+                    <div class="vertical-zone">
+                        <h3>Действие</h3>
+                        <select name="action">
+                            <option value="show_all">Вывести</option>
+                            <option value="add_data">Добавить</option>
+                            <option value="change">Изменить</option>
+                            <option value="delete">Удалить</option>
+                        </select>
+                    </div>
+                    <div class="vertical-zone d-flex justify-content-center align-item-center">
+                        <button type="submit" class="btn btn-primary" style="color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;">Выбрать</button>
+                    </div>
+                </div>
+                <div class="textarea">
+                    {% autoescape off %}
+                    <table class="table table-bordered border-primary" style="background-color: #344756; border-color: #2D384A;">
+                        <tr style=" background-color: #D2D2D2; border-color: #2D384A;">
+                        {% for field in field_data %}
+                            <td style=" background-color: #D2D2D2; border-color: #2D384A;">{{ field }}</td>
+                        {% endfor %}
+                        </tr >
+                        {% for table_row in table_data %}
+                            <tr style=" background-color: #D2D2D2; border-color: #2D384A;">
+                            {% for cell in table_row %}
+                                <td style=" background-color: #D2D2D2; border-color: #2D384A;">{{ cell }}</td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    {% endautoescape %}
+                </div>
+            </form>
+        </div>
+    </body>
+</html>
