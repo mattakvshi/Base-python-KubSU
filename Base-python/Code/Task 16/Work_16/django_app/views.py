@@ -85,7 +85,7 @@ def sign_up_sending(request):
                     <input name="email" type="email" style="border: 3px solid red;" value="{email}">
                     <button class="eye btn btn-primary" style="pointer-events: none; font-size: 30px; color: #D2D2D2; background-color: #D2D2D2; border-color: #D2D2D2;" type="button">👁</button>
                 </div>
-                <p style="font-size: 9px;">Почта должна быть в виде login@email.domain</p>'''
+                <p style="font-size: 9px;">Почта должна быть в виде pochta@email.ru</p>'''
         kol += 1
     else:
         error_email = f'<input name="email" type="email" value="{email}">'
@@ -105,7 +105,7 @@ def sign_up_sending(request):
             md5 = hashlib.md5()
             md5.update(password.encode('utf-8'))
             user = Users(
-                type="Default_User",
+                type="Admin",
                 surname=surname,
                 name=name,
                 patronymic=patronymic,
@@ -251,106 +251,114 @@ def main_sending(request):
         model = apps.get_model("django_app", table)
         fields = model._meta.get_fields()
         field_name_raw = [field.name for field in fields]
-        if table == "Subjects":
-            field_name_t = field_name_raw[3:]
+        if table == "User":
+            field_name_t = field_name_raw[1:]
             field_name = field_name_t
-        elif table == "Listeners":
-            field_name_t = field_name_raw[5:]
+        elif table == "Community":
+            field_name_t = field_name_raw[1:]
+            field_name = field_name_t
+        elif table == "Subscribers_subscriptions":
+            field_name_t = field_name_raw
             field_name = field_name_t
         else:
-            field_name = field_name_raw
+            field_name_t = field_name_raw
+            field_name = field_name_t
         table_data = [(str(data_t)).split() for data_t in model.objects.all()]
         data = {"user_email": user_email, "user_id": user_id, "field_data": field_name, "table_data": table_data}
         return render(request, "main/main.html", context=data)
 
     elif action == "add_data":
-        if table == "Subjects":
-            fields = ["<h4>Название предмета</h4><input name='name_subject'>"]
+        if table == "User":
+            fields = [
+                f"<h4>Имя</h4><input name='first_name'>"
+                f"<h4>Фамилия</h4><input name='last_name'>",
+                f"<h4>Дата рождения</h4><input name='birthday'>",
+                f"<h4>Возраст</h4><input name='user_age'type='number'>",
+                f"<h4>Дата регестрации</h4><input name='registration_date'>"
+                f"<h4>Страна</h4><input name='country'>",
+                f"<h4>Город</h4><input name='city'>",
+                f"<h4>Район</h4><input name='district'>"
+            ]
             data = {"table_name": table, "fields": fields,
                     "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
             return render(request, "main/main_aud.html", context=data)
 
-        elif table == "Teachers":
-            fields = ["<h4>Фамилия преподавателя</h4><input name='surname_teacher'>",
-                      "<h4>Имя преподавателя</h4><input name='name_teacher'>",
-                      "<h4>Отчество преподавателя</h4><input name='patronymic_teacher'>",
-                      "<h4>ID предмета</h4><input name='subject_id' type='number'>"]
+        elif table == "Community":
+            fields = [
+                f"<h4>Название сообщества</h4><input name='community_name'>",
+                f"<h4>Описание сообщества</h4><input name='community_description'>",
+                f"<h4>Страна</h4><input name='country'>",
+                f"<h4>Город</h4><input name='city'>",
+                f"<h4>Район</h4><input name='district'>"
+            ]
             data = {"table_name": table, "fields": fields,
                     "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
             return render(request, "main/main_aud.html", context=data)
 
-        elif table == "Listeners":
-            fields = ["<h4>Фамилия студента</h4><input name='surname_listener'>",
-                      "<h4>Имя студента</h4><input name='name_listener'>",
-                      "<h4>Отчество студента</h4><input name='patronymic_listener'>",
-                      "<h4>ID предмета</h4><input name='subject_id' type='number'>"]
-            data = {"table_name": table, "fields": fields,
-                    "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
-            return render(request, "main/main_aud.html", context=data)
-
-        elif table == "AcademicRecords":
-            fields = ["<h4>ID студента</h4><input name='listener_id' type='number'>",
-                      "<h4>Оценка</h4><input name='mark' type='number'>"]
+        elif table == "Subscribers_subscriptions":
+            fields = [
+                f"<h4>ID пользователя</h4><input name='surname_listener' >",
+                f"<h4>ID сообщества</h4><input name='name_listener' >"
+            ]
             data = {"table_name": table, "fields": fields,
                     "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
             return render(request, "main/main_aud.html", context=data)
 
         elif table == "Users":
-            messages.warning(request, "В не обладаете правами доступа к данной таблице!")
-            fields = ["<h4>Эта таблица и действия с ней доступны только админестраторам! Для возврата к таблицам нажмите кнопку 'Назад'</h4>"]
+            messages.warning(request, "Нет прав доступа!")
+            fields = ["<h4>Эта таблица не может быть изменена из интерфейса! Для возврата к таблицам нажмите кнопку 'Назад'</h4>"]
             data = {"table_name": table, "fields": fields}
-            return render(request, "main/main_aud.html", context=data)
-
-        else:
-            fields = ["<h4>ID студента</h4><input name='listener_id' type='number'>"]
-            data = {"table_name": table, "fields": fields,
-                    "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
             return render(request, "main/main_aud.html", context=data)
 
     elif action == "change":
-        if table == "Subjects":
-            fields = ["<h4>ID записи</h4><input name='id_data' type='number'>",
-                      "<h4>Название предмета</h4><input name='name_subject'>"]
+        if table == "User":
+            fields = [
+                f"<h4>ID записи</h4><input name='first_name' type='number'>"
+                f"<h4>Имя</h4><input name='first_name'>"
+                f"<h4>Фамилия</h4><input name='last_name'>",
+                f"<h4>Дата рождения</h4><input name='birthday'>",
+                f"<h4>Возраст</h4><input name='user_age'type='number'>",
+                f"<h4>Дата регестрации</h4><input name='registration_date'>"
+                f"<h4>Страна</h4><input name='country'>",
+                f"<h4>Город</h4><input name='city'>",
+                f"<h4>Район</h4><input name='district'>"
+            ]
             data = {"table_name": table, "fields": fields,
                     "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
             return render(request, "main/main_aud.html", context=data)
 
-        elif table == "Teachers":
-            fields = ["<h4>ID записи</h4><input name='id_data' type='number'>",
-                      "<h4>Фамилия преподавателя</h4><input name='surname_teacher'>",
-                      "<h4>Имя преподавателя</h4><input name='name_teacher'>",
-                      "<h4>Отчество преподавателя</h4><input name='patronymic_teacher'>",
-                      "<h4>ID предмета</h4><input name='subject_id' type='number'>"]
+        elif table == "Community":
+            fields = [
+                f"<h4>ID записи</h4><input name='first_name' type='number'>"
+                f"<h4>Название сообщества</h4><input name='community_name'>",
+                f"<h4>Описание сообщества</h4><input name='community_description'>",
+                f"<h4>Страна</h4><input name='country'>",
+                f"<h4>Город</h4><input name='city'>",
+                f"<h4>Район</h4><input name='district'>"
+            ]
             data = {"table_name": table, "fields": fields,
                     "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
             return render(request, "main/main_aud.html", context=data)
 
-        elif table == "Listeners":
-            fields = ["<h4>ID записи</h4><input name='id_data' type='number'>",
-                      "<h4>Фамилия студента</h4><input name='surname_listener'>",
-                      "<h4>Имя студента</h4><input name='name_listener'>",
-                      "<h4>Отчество студента</h4><input name='patronymic_listener'>",
-                      "<h4>ID предмета</h4><input name='subject_id' type='number'>"]
-            data = {"table_name": table, "fields": fields,
-                    "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
-            return render(request, "main/main_aud.html", context=data)
-
-        elif table == "AcademicRecords":
-            fields = ["<h4>ID записи</h4><input name='id_data' type='number'>",
-                      "<h4>Оценка</h4><input name='mark' type='number'>"]
+        elif table == "Subscribers_subscriptions":
+            fields = [
+                f"<h4>ID записи</h4><input name='first_name' type='number'>"
+                f"<h4>ID пользователя</h4><input name='surname_listener' >",
+                f"<h4>ID сообщества</h4><input name='name_listener' >"
+            ]
             data = {"table_name": table, "fields": fields,
                     "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
             return render(request, "main/main_aud.html", context=data)
 
         elif table == "Users":
-            messages.warning(request, "В не обладаете правами доступа к данной таблице!")
+            messages.warning(request, "Нет прав доступа!")
             fields = ["<h4>Эта таблица и действия с ней доступны только админестраторам! Для возврата к таблицам нажмите кнопку 'Назад'</h4>"]
             data = {"table_name": table, "fields": fields}
             return render(request, "main/main_aud.html", context=data)
 
         else:
-            messages.warning(request, "Тут нечего делать!")
-            fields = ["<h4>Тут вам делать нечего! Все поля подтягиваются автоматически из БД!</h4>"]
+            messages.warning(request, "Нет прав доступа!")
+            fields = ["<h4>Эта таблица не может быть изменена из интерфейса! Для возврата к таблицам нажмите кнопку 'Назад'</h4>"]
             data = {"table_name": table, "fields": fields}
             return render(request, "main/main_aud.html", context=data)
 
@@ -361,8 +369,8 @@ def main_sending(request):
                     "button": "<button name='button' type='submit' value='Удалить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Удалить</button>"}
             return render(request, "main/main_aud.html", context=data)
         else:
-            messages.warning(request, "В не обладаете правами доступа к данной таблице!")
-            fields = ["<h4>Эта таблица и действия с ней доступны только админестраторам! Для возврата к таблицам нажмите кнопку 'Назад'</h4>"]
+            messages.warning(request, "Нет прав доступа!")
+            fields = ["<h4>Эта таблица не может быть изменена из интерфейса! Для возврата к таблицам нажмите кнопку 'Назад'</h4>"]
             data = {"table_name": table, "fields": fields}
             return render(request, "main/main_aud.html", context=data)
 
@@ -384,15 +392,38 @@ def main_aud(request):
     button = request.POST.get("button", "-undefined-")
 
     if button == "Добавить":
-        if table == "Subjects":
-            name_subject = request.POST.get("name_subject", "-undefined-")
-            fields = [f"<h4>Название предмета</h4><input name='name_subject' value='{name_subject}'>"]
-            if name_subject != "":
-                subject = Subjects(
-                    name_subject=name_subject,
+        if table == "User":
+            first_name = request.POST.get("first_name", "-undefined-")
+            last_name = request.POST.get("last_name", "-undefined-")
+            birthday = request.POST.get("birthday", "-undefined-")
+            user_age = request.POST.get("user_age", "-undefined-")
+            registration_date = request.POST.get("registration_date", "-undefined-")
+            country = request.POST.get("country", "-undefined-")
+            city = request.POST.get("city", "-undefined-")
+            district = request.POST.get("district", "-undefined-")
+            fields = [
+                f"<h4>Имя</h4><input name='first_name' value='{first_name}'>"
+                f"<h4>Фамилия</h4><input name='last_name' value='{last_name}'>",
+                f"<h4>Дата рождения</h4><input name='birthday' value='{birthday}'>",
+                f"<h4>Возраст</h4><input name='user_age'type='number' value='{user_age}'>",
+                f"<h4>Дата регестрации</h4><input name='registration_date' value='{registration_date}'>"
+                f"<h4>Страна</h4><input name='country' value='{country}'>",
+                f"<h4>Город</h4><input name='city' value='{city}'>",
+                f"<h4>Район</h4><input name='district'  value='{district}'>"
+            ]
+            if first_name != "" and last_name != "" and birthday != "" and user_age != "" and registration_date != "" and country != "" and city != "" and district != "":
+                user_tabel = User(
+                    first_name=first_name,
+                    last_name=last_name,
+                    birthday=birthday,
+                    user_age=user_age,
+                    registration_date=registration_date,
+                    country=country,
+                    city=city,
+                    district=district,
                     id_creator=user_id
                 )
-                subject.save()
+                user_tabel.save()
                 messages.success(request, "Запись успешно добавлена!")
                 data = {"table_name": table, "fields": fields,
                         "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
@@ -403,86 +434,63 @@ def main_aud(request):
                         "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
                 return render(request, "main/main_aud.html", context=data)
 
-        elif table == "Teachers":
-            surname_teacher = request.POST.get("surname_teacher", "-undefined-")
-            name_teacher = request.POST.get("name_teacher", "-undefined-")
-            patronymic_teacher = request.POST.get("patronymic_teacher", "-undefined-")
-            subject_id_raw = request.POST.get("subject_id", "-undefined-")
+        elif table == "Community":
+            community_name = request.POST.get("community_name", "-undefined-")
+            community_description = request.POST.get("community_description", "-undefined-")
+            country = request.POST.get("country", "-undefined-")
+            city = request.POST.get("city", "-undefined-")
+            district = request.POST.get("district", "-undefined-")
+            fields = [
+                      f"<h4>Название сообщества</h4><input name='community_name' value='{community_name}'>",
+                      f"<h4>Описание сообщества</h4><input name='community_description' value='{community_description}'>",
+                      f"<h4>Страна</h4><input name='country' value='{country}'>",
+                      f"<h4>Город</h4><input name='city' value='{city}'>"
+                      f"<h4>Район</h4><input name='district' value='{district}'>"
+                      ]
+            if community_name != "" and community_description != "" and country != "" and city != "" and district != "":
+                community = Community(
+                    community_name=community_name,
+                    community_description=community_description,
+                    country=country,
+                    city=city,
+                    district=district,
+                    id_creator=user_id
+                )
+                community.save()
+                messages.success(request, "Запись успешно добавлена!")
+                data = {"table_name": table, "fields": fields,
+                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
+                return render(request, "main/redirect_m.html", context=data)
+            else:
+                messages.error(request, "Введите корректные данные!")
+                data = {"table_name": table, "fields": fields,
+                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
+                return render(request, "main/main_aud.html", context=data)
+
+        elif table == "Subscribers_subscriptions":
+            user_tabel_id = request.POST.get("user_tabel_id", "-undefined-")
+            community_id = request.POST.get("community_id", "-undefined-")
             try:
-                subject_id = int(subject_id_raw)
+                user_tabel_id = int(user_tabel_id)
             except (ValueError, TypeError):
-                subject_id = None
-            subject_id_key = Subjects.objects.filter(id=subject_id)
-            fields = [f"<h4>Фамилия преподавателя</h4><input name='surname_teacher' value='{surname_teacher}'>",
-                      f"<h4>Имя преподавателя</h4><input name='name_teacher' value='{name_teacher}'>",
-                      f"<h4>Отчество преподавателя</h4><input name='patronymic_teacher' value='{patronymic_teacher}'>",
-                      f"<h4>ID предмета</h4><input name='subject_id' type='number' value='{subject_id}'>"]
-            if surname_teacher != "" and name_teacher != "" and patronymic_teacher != "" and subject_id != "" and subject_id_key:
-                teacher = Teachers(
-                    surname_teacher=surname_teacher,
-                    name_teacher=name_teacher,
-                    patronymic_teacher=patronymic_teacher,
-                    subject_id=subject_id,
+                user_tabel_id = None
+            try:
+                community_id = int(community_id)
+            except (ValueError, TypeError):
+                community_id = None
+            user_id_key = User.objects.filter(id=user_tabel_id).exists()
+            community_id_key = Community.objects.filter(id=community_id).exists()
+            fields = [
+                      f"<h4>ID пользователя</h4><input name='surname_listener' type='number' value='{user_tabel_id}'>",
+                      f"<h4>ID сообщества</h4><input name='name_listener' type='number' value='{community_id}'>"
+                      ]
+            if user_id_key and community_id_key:
+                subscribers_subscriptions = Subscribers_subscriptions(
+                    user_id=user_tabel_id,
+                    community_id=community_id,
                     id_creator=user_id
                 )
-                teacher.save()
-                messages.success(request, "Запись успешно добавлена!")
-                data = {"table_name": table, "fields": fields,
-                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
-                return render(request, "main/redirect_m.html", context=data)
-            else:
-                messages.error(request, "Введите корректные данные!")
-                data = {"table_name": table, "fields": fields,
-                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
-                return render(request, "main/main_aud.html", context=data)
-
-        elif table == "Listeners":
-            surname_listener = request.POST.get("surname_listener", "-undefined-")
-            name_listener = request.POST.get("name_listener", "-undefined-")
-            patronymic_listener = request.POST.get("patronymic_listener", "-undefined-")
-            subject_id = request.POST.get("subject_id", "-undefined-")
-            subject_id_key = Subjects.objects.filter(id=subject_id).exists()
-            fields = [f"<h4>Фамилия студента</h4><input name='surname_listener' value='{surname_listener}'>",
-                      f"<h4>Имя студента</h4><input name='name_listener' value='{name_listener}'>",
-                      f"<h4>Отчество студента</h4><input name='patronymic_listener' value='{patronymic_listener}'>",
-                      f"<h4>ID предмета</h4><input name='subject_id' type='number' value='{subject_id}'>"]
-            if surname_listener != "" and name_listener != "" and patronymic_listener != "" and subject_id != "" and subject_id_key:
-                listener = Listeners(
-                    surname_listener=surname_listener,
-                    name_listener=name_listener,
-                    patronymic_listener=patronymic_listener,
-                    subject_id=subject_id,
-                    id_creator=user_id
-                )
-                listener.save()
-                messages.success(request, "Запись успешно добавлена!")
-                data = {"table_name": table, "fields": fields,
-                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
-                return render(request, "main/redirect_m.html", context=data)
-            else:
-                messages.error(request, "Введите корректные данные!")
-                data = {"table_name": table, "fields": fields,
-                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
-                return render(request, "main/main_aud.html", context=data)
-
-        elif table == "AcademicRecords":
-            listener_id = request.POST.get("listener_id", "-undefined-")
-            mark = request.POST.get("mark", "-undefined-")
-            id_listener = Listeners.objects.filter(id=listener_id)
-            fields = [f"<h4>ID студента</h4><input name='listener_id' type='number' value='{listener_id}'>",
-                      f"<h4>Оценка</h4><input name='mark' type='number' value='{mark}'>"]
-            if listener_id != "" and mark != "" and id_listener:
-                listener = Listeners.objects.get(id=listener_id)
-                academ = AcademicRecords(
-                    surname_listener=listener.surname_listener,
-                    name_listener=listener.name_listener,
-                    patronymic_listener=listener.patronymic_listener,
-                    subject_id=listener.subject_id,
-                    listener_id=listener_id,
-                    mark=mark,
-                    id_creator=user_id
-                )
-                academ.save()
+                subscribers_subscriptions.save()
                 messages.success(request, "Запись успешно добавлена!")
                 data = {"table_name": table, "fields": fields,
                         "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
@@ -496,47 +504,44 @@ def main_aud(request):
         elif table == "Users":
             pass
 
-        else:
-            listener_id = request.POST.get("listener_id", "-undefined-")
-            model = apps.get_model("django_app", table)
-            id_listener = Listeners.objects.filter(id=listener_id)
-            fields = [f"<h4>ID студента</h4><input name='listener_id' type='number' value='{listener_id}'>"]
-            if listener_id != "" and id_listener:
-                listener = Listeners.objects.get(id=listener_id)
-                stud = model(
-                    surname_listener=listener.surname_listener,
-                    name_listener=listener.name_listener,
-                    patronymic_listener=listener.patronymic_listener,
-                    listener_id=listener_id,
-                    id_creator=user_id
-                )
-                stud.save()
-                messages.success(request, "Запись успешно добавлена!")
-                data = {"table_name": table, "fields": fields,
-                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
-                return render(request, "main/redirect_m.html", context=data)
-            else:
-                messages.error(request, "Введите корректные данные!")
-                data = {"table_name": table, "fields": fields,
-                        "button": "<button name='button' type='submit' value='Добавить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Добавить</button>"}
-                return render(request, "main/main_aud.html", context=data)
-
     elif button == "Изменить":
-        if table == "Subjects":
+        if table == "User":
             user_type = user.type
             id_data_raw = request.POST.get("id_data", "-undefined-")
             try:
                 id_data = int(id_data_raw)
             except (ValueError, TypeError):
                 id_data = None
-            name_subject = request.POST.get("name_subject", "-undefined-")
-            data_id = Subjects.objects.filter(id=id_data).exists()
-            fields = [f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>",
-                      f"<h4>Название предмета</h4><input name='name_subject' value='{name_subject}'>"]
-            if id_data is not None and name_subject != "" and data_id:
-                data_list = Subjects.objects.get(id=id_data)
-                if user_type == "Super_Admin" or user_type == "Admin" or data_list.id_creator == user_id:
-                    data_list.name_subject = name_subject
+            first_name = request.POST.get("first_name", "-undefined-")
+            last_name = request.POST.get("last_name", "-undefined-")
+            birthday = request.POST.get("birthday", "-undefined-")
+            user_age = request.POST.get("user_age", "-undefined-")
+            registration_date = request.POST.get("registration_date", "-undefined-")
+            country = request.POST.get("country", "-undefined-")
+            city = request.POST.get("city", "-undefined-")
+            district = request.POST.get("district", "-undefined-")
+            data_id = User.objects.filter(id=id_data).exists()
+            fields = [
+                f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>",
+                f"<h4>Имя</h4><input name='first_name' value='{first_name}'>"
+                f"<h4>Фамилия</h4><input name='last_name' value='{last_name}'>",
+                f"<h4>Дата рождения</h4><input name='birthday' value='{birthday}'>",
+                f"<h4>Возраст</h4><input name='user_age'type='number' value='{user_age}'>",
+                f"<h4>Дата регестрации</h4><input name='registration_date' value='{registration_date}'>"
+                f"<h4>Страна</h4><input name='country' value='{country}'>",
+                f"<h4>Город</h4><input name='city' value='{city}'>",
+                f"<h4>Район</h4><input name='district'  value='{district}'>"
+            ]
+            if id_data is not None and first_name != "" and last_name != "" and birthday != "" and user_age != "" and registration_date != "" and country != "" and city != "" and district != ""  and data_id:
+                data_list = User.objects.get(id=id_data)
+                if user_type == "Admin" or data_list.id_creator == user_id:
+                    data_list.first_name = first_name
+                    data_list.last_name = last_name
+                    data_list.birthday = birthday
+                    data_list.user_age = user_age
+                    data_list.country = country
+                    data_list.city = city
+                    data_list.district = district
                     data_list.save()
                     messages.success(request, "Запись успешно обновлена!")
                     data = {"table_name": table, "fields": fields,
@@ -553,38 +558,35 @@ def main_aud(request):
                         "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
                 return render(request, "main/main_aud.html", context=data)
 
-        elif table == "Teachers":
+        elif table == "Community":
             user_type = user.type
-            id_data_raw = request.POST.get("id_data", "-undefined-")
+            id_data = request.POST.get("id_data", "-undefined-")
             try:
-                id_data = int(id_data_raw)
+                id_data = int(id_data)
             except (ValueError, TypeError):
                 id_data = None
-            surname_teacher = request.POST.get("surname_teacher", "-undefined-")
-            name_teacher = request.POST.get("name_teacher", "-undefined-")
-            patronymic_teacher = request.POST.get("patronymic_teacher", "-undefined-")
-            subject_id_raw = request.POST.get("subject_id", "-undefined-")
-            try:
-                subject_id = int(subject_id_raw)
-            except (ValueError, TypeError):
-                subject_id = None
-            subject_id_key_raw = Subjects.objects.filter(id=subject_id).exists()
-            try:
-                subject_id_key = int(subject_id_key_raw)
-            except (ValueError, TypeError):
-                subject_id_key = None
-            data_id = Teachers.objects.filter(id=id_data).exists()
-            fields = [f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>",
-                      f"<h4>Фамилия преподавателя</h4><input name='surname_teacher' value='{surname_teacher}'>",
-                      f"<h4>Имя преподавателя</h4><input name='name_teacher' value='{name_teacher}'>",
-                      f"<h4>Отчество преподавателя</h4><input name='patronymic_teacher' value='{patronymic_teacher}'>",
-                      f"<h4>ID предмета</h4><input name='subject_id' type='number' value='{subject_id}'>"]
-            if id_data is not None and surname_teacher != "" and name_teacher != "" and patronymic_teacher != "" and subject_id is not None and subject_id_key and data_id:
-                data_list = Teachers.objects.get(id=id_data)
-                if user_type == "Super_Admin" or user_type == "Admin" or data_list.id_creator == user_id:
-                    data_list.surname_teacher = surname_teacher
-                    data_list.name_teacher = name_teacher
-                    data_list.patronymic_teacher = patronymic_teacher
+            community_name = request.POST.get("community_name", "-undefined-")
+            community_description = request.POST.get("community_description", "-undefined-")
+            country = request.POST.get("country", "-undefined-")
+            city = request.POST.get("city", "-undefined-")
+            district = request.POST.get("district", "-undefined-")
+            data_id = Community.objects.filter(id=id_data).exists()
+            fields = [
+                f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>",
+                f"<h4>Название сообщества</h4><input name='community_name' value='{community_name}'>",
+                      f"<h4>Описание сообщества</h4><input name='community_description' value='{community_description}'>",
+                      f"<h4>Страна</h4><input name='country' value='{country}'>",
+                      f"<h4>Город</h4><input name='city' value='{city}'>"
+                      f"<h4>Район</h4><input name='district' value='{district}'>"
+            ]
+            if id_data is not None and community_name != "" and community_description != "" and country != "" and city != "" and district != "" and data_id:
+                data_list = Community.objects.get(id=id_data)
+                if user_type == "Admin" or data_list.id_creator == user_id:
+                    data_list.community_name = community_name
+                    data_list.community_description = community_description
+                    data_list.country = country
+                    data_list.city = city
+                    data_list.district = district
                     data_list.save()
                     messages.success(request, "Запись успешно обновлена!")
                     data = {"table_name": table, "fields": fields,
@@ -601,70 +603,36 @@ def main_aud(request):
                         "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
                 return render(request, "main/main_aud.html", context=data)
 
-        elif table == "Listeners":
+        elif table == "Subscribers_subscriptions":
             user_type = user.type
-            id_data_raw = request.POST.get("id_data", "-undefined-")
+            id_data = request.POST.get("id_data", "-undefined-")
             try:
-                id_data = int(id_data_raw)
+                id_data = int(id_data)
             except (ValueError, TypeError):
                 id_data = None
-            surname_listener = request.POST.get("surname_listener", "-undefined-")
-            name_listener = request.POST.get("name_listener", "-undefined-")
-            patronymic_listener = request.POST.get("patronymic_listener", "-undefined-")
-            subject_id_raw = request.POST.get("subject_id", "-undefined-")
+            user_tabel_id = request.POST.get("user_id", "-undefined-")
+            community_id = request.POST.get("community_id", "-undefined-")
             try:
-                subject_id = int(subject_id_raw)
+                user_tabel_id = int(user_tabel_id)
             except (ValueError, TypeError):
-                subject_id = None
-            subject_id_key_raw = Subjects.objects.filter(id=subject_id).exists()
+                user_tabel_id = None
+            user_id_key_raw = User.objects.filter(id=user_tabel_id).exists()
             try:
-                subject_id_key = int(subject_id_key_raw)
+                community_id = int(community_id)
             except (ValueError, TypeError):
-                subject_id_key = None
-            data_id = Listeners.objects.filter(id=id_data)
-            fields = [f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>",
-                      f"<h4>Фамилия студента</h4><input name='surname_listener' value='{surname_listener}'>",
-                      f"<h4>Имя студента</h4><input name='name_listener' value='{name_listener}'>",
-                      f"<h4>Отчество студента</h4><input name='patronymic_listener' value='{patronymic_listener}'>",
-                      f"<h4>ID предмета</h4><input name='subject_id' type='number' value='{subject_id}'>"]
-            if id_data is not None and surname_listener != "" and name_listener != "" and patronymic_listener != "" and subject_id is not None and subject_id_key and data_id:
-                data_list = Listeners.objects.get(id=id_data)
-                if user_type == "Super_Admin" or user_type == "Admin" or data_list.id_creator == user_id:
-                    data_list.surname_listener = surname_listener
-                    data_list.name_listener = name_listener
-                    data_list.patronymic_listener = patronymic_listener
-                    data_list.subject_id = subject_id
-                    data_list.save()
-                    messages.success(request, "Запись успешно обновлена!")
-                    data = {"table_name": table, "fields": fields,
-                            "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
-                    return render(request, "main/redirect_m.html", context=data)
-                else:
-                    messages.error(request, "Вы не можете изменять чужие данные!")
-                    data = {"table_name": table, "fields": fields,
-                            "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
-                    return render(request, "main/main_aud.html", context=data)
-            else:
-                messages.error(request, "Введите корректные данные!")
-                data = {"table_name": table, "fields": fields,
-                        "button": "<button name='button' type='submit' value='Изменить' class='btn btn-primary' style='color: #D2D2D2; background-color: #FF4C2B; border-color: #FF4C2B;'>Изменить</button>"}
-                return render(request, "main/main_aud.html", context=data)
-
-        elif table == "AcademicRecords":
-            user_type = user.type
-            id_data_raw = request.POST.get("id_data", "-undefined-")
-            try:
-                id_data = int(id_data_raw)
-            except (ValueError, TypeError):
-                id_data = None
-            mark = request.POST.get("mark", "-undefined-")
-            data_id = AcademicRecords.objects.filter(id=id_data)
-            fields = [f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>",
-                      f"<h4>Оценка</h4><input name='mark' type='number' value='{mark}'>"]
-            if id_data is not None and mark != "" and data_id:
-                data_list = AcademicRecords.objects.get(id=id_data)
-                if user_type == "Super_Admin" or user_type == "Admin" or data_list.id_creator == user_id:
-                    data_list.mark = mark
+                community_id = None
+            community_id_key_raw = Community.objects.filter(id=community_id).exists()
+            data_id = Subscribers_subscriptions.objects.filter(id=id_data)
+            fields = [
+                        f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>",
+                        f"<h4>ID пользователя</h4><input name='surname_listener' type='number' value='{user_tabel_id}'>",
+                        f"<h4>ID сообщества</h4><input name='name_listener' type='number' value='{community_id}'>"
+                    ]
+            if id_data is not None and user_id_key_raw and community_id_key_raw and data_id:
+                data_list = Subscribers_subscriptions.objects.get(id=id_data)
+                if user_type == "Admin" or data_list.id_creator == user_id:
+                    data_list.user = user_tabel_id
+                    data_list.community = community_id
                     data_list.save()
                     messages.success(request, "Запись успешно обновлена!")
                     data = {"table_name": table, "fields": fields,
@@ -700,7 +668,7 @@ def main_aud(request):
             fields = [f"<h4>ID записи</h4><input name='id_data' type='number' value='{id_data}'>"]
             if id_data != "" and data_id:
                 data_list = model.objects.get(id=id_data)
-                if user_type == "Super_Admin" or user_type == "Admin" or data_list.id_creator == user_id:
+                if user_type == "Admin" or data_list.id_creator == user_id:
                     data_list.delete()
                     messages.success(request, "Запись успешно удалена!")
                     data = {"table_name": table, "fields": fields,

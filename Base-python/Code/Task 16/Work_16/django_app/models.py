@@ -15,107 +15,39 @@ class Users(models.Model):
                 f"{self.password}")
 
 
-class Subjects(models.Model):
-    name_subject = models.CharField(max_length=30)
-    id_creator = models.IntegerField()
+class User(models.Model):
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    birthday = models.CharField(max_length=30)
+    user_age = models.IntegerField()
+    registration_date = models.CharField(max_length=30)
+    country = models.CharField(max_length=30)
+    city = models.CharField(max_length=30)
+    district = models.CharField(max_length=30)
+    id_creator = models.IntegerField(default='1')
 
     def __str__(self):
-        return f"{self.id} {self.name_subject} {self.id_creator}"
+        return (f"{self.id} {self.first_name} {self.last_name} {self.birthday} "
+                f"{self. user_age} {self.registration_date} {self.country} {self.city} {self.district} {self.id_creator}")
 
 
-class Teachers(models.Model):
-    surname_teacher = models.CharField(max_length=30)
-    name_teacher = models.CharField(max_length=30)
-    patronymic_teacher = models.CharField(max_length=30)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE, related_name="teachers")
-    id_creator = models.IntegerField()
-
-    def __str__(self):
-        return (f"{self.id} {self.surname_teacher} {self.name_teacher} {self.patronymic_teacher} "
-                f"{self.subject_id} {self.id_creator}")
-
-
-class Listeners(models.Model):
-    surname_listener = models.CharField(max_length=30)
-    name_listener = models.CharField(max_length=30)
-    patronymic_listener = models.CharField(max_length=30)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE, related_name="listeners")
-    id_creator = models.IntegerField()
+class Community(models.Model):
+    community_name = models.CharField(max_length=50)
+    community_description = models.CharField(max_length=100)
+    country = models.CharField(max_length=30)
+    city = models.CharField(max_length=30)
+    district = models.CharField(max_length=30)
+    id_creator = models.IntegerField(default='1')
 
     def __str__(self):
-        return (f"{self.id} {self.surname_listener} {self.name_listener} {self.patronymic_listener} "
-                f"{self.subject_id} {self.id_creator}")
+        return (f"{self.id} {self.community_name} {self.community_description}  "
+                f" {self.country} {self.city} {self.district} {self.id_creator}")
 
 
-class AcademicRecords(models.Model):
-    surname_listener = models.CharField(max_length=30)
-    name_listener = models.CharField(max_length=30)
-    patronymic_listener = models.CharField(max_length=30)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE, related_name="academic_records")
-    listener_id = models.IntegerField()
-    mark = models.IntegerField()
-    id_creator = models.IntegerField()
+class Subscribers_subscriptions(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    community = models.ForeignKey(Community, on_delete=models.CASCADE)
+    id_creator = models.IntegerField(default='1')
 
     def __str__(self):
-        return (f"{self.id} {self.surname_listener} {self.name_listener} {self.patronymic_listener} "
-                f"{self.subject_id} {self.listener_id} {self.mark} {self.id_creator}")
-
-
-class Group1(models.Model):
-    surname_listener = models.CharField(max_length=30)
-    name_listener = models.CharField(max_length=30)
-    patronymic_listener = models.CharField(max_length=30)
-    listener = models.ForeignKey(Listeners, on_delete=models.CASCADE, related_name="group1")
-    id_creator = models.IntegerField()
-
-    def __str__(self):
-        return (f"{self.id} {self.surname_listener} {self.name_listener} {self.patronymic_listener} "
-                f"{self.listener_id} {self.id_creator}")
-
-
-class Group2(models.Model):
-    surname_listener = models.CharField(max_length=30)
-    name_listener = models.CharField(max_length=30)
-    patronymic_listener = models.CharField(max_length=30)
-    listener = models.ForeignKey(Listeners, on_delete=models.CASCADE, related_name="group2")
-    id_creator = models.IntegerField()
-
-    def __str__(self):
-        return (f"{self.id} {self.surname_listener} {self.name_listener} {self.patronymic_listener} "
-                f"{self.listener_id} {self.id_creator}")
-
-
-class Group3(models.Model):
-    surname_listener = models.CharField(max_length=30)
-    name_listener = models.CharField(max_length=30)
-    patronymic_listener = models.CharField(max_length=30)
-    listener = models.ForeignKey(Listeners, on_delete=models.CASCADE, related_name="group3")
-    id_creator = models.IntegerField()
-
-    def __str__(self):
-        return (f"{self.id} {self.surname_listener} {self.name_listener} {self.patronymic_listener} "
-                f"{self.listener_id} {self.id_creator}")
-
-
-class Group4(models.Model):
-    surname_listener = models.CharField(max_length=30)
-    name_listener = models.CharField(max_length=30)
-    patronymic_listener = models.CharField(max_length=30)
-    listener = models.ForeignKey(Listeners, on_delete=models.CASCADE, related_name="group4")
-    id_creator = models.IntegerField()
-
-    def __str__(self):
-        return (f"{self.id} {self.surname_listener} {self.name_listener} {self.patronymic_listener} "
-                f"{self.listener_id} {self.id_creator}")
-
-
-class Group5(models.Model):
-    surname_listener = models.CharField(max_length=30)
-    name_listener = models.CharField(max_length=30)
-    patronymic_listener = models.CharField(max_length=30)
-    listener = models.ForeignKey(Listeners, on_delete=models.CASCADE, related_name="group5")
-    id_creator = models.IntegerField()
-
-    def __str__(self):
-        return (f"{self.id} {self.surname_listener} {self.name_listener} {self.patronymic_listener} "
-                f"{self.listener_id} {self.id_creator}")
+        return (f"{self.id} {self.user} {self.community} {self.id_creator}")
