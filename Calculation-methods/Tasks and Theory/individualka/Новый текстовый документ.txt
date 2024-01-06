@@ -1,0 +1,403 @@
+Задача была следующей:
+
+---
+Тема задачи: Решении систем Дифференциальных Уравнений с использованием разностных схем.
+
+Основная задача: Построить явную и неявную разностную схему решения уравнения,
+определить ее устойчивость.
+
+Условие:
+du/dt = d^2u/dx^2, 0 < x < Pi/2, 0 < t < T
+u(x, 0) = sin x, 0 <= x <= Pi/2,
+u(0, t) = 0, u(Pi/2, t) = e^(-t), 0 <= t <= T
+
+Значение T необходимо подобрать самостоятельно.
+
+Точное решение для проверки: u(x, t) = e^(-t)  sin x.
+
+ОБЯЗАТЕЛЬНЫЕ требования:
+1) Реализовать программу на языке Python, программа должна быть разделена на чёткие отдельные функции, так же содержать main-функцию, в которой будут вызываться остальные, и производится красивый вывод в консоль полной информации о ходе решения и о его результатах НА РУССКОМ ЯЗЫКЕ.
+2) Построить явную и неявную разностную схему решения уравнения, в отдельных функциях, и построить графики для каждой схемы решения средствами matplotlib.pyplot.
+3) Для каждой схемы определить её устойчивость.
+4) Для каждого пункта выводить всё в консоль. Отдельно всю инфу по первой схеме решения, отдельно всю инфу по второй схеме решения.
+5) Оставить очень подробные комментарии в коде НА РУССКОМ ЯЗЫКЕ для каждой функции и всего кода в целом. Особенно прокомментировать алгоритм решений систем Дифференциальных Уравнений с использованием разностных схем.
+6) Особо тщательно подойди к реализации алгоритма решения систем Дифференциальных Уравнений с использованием разностных схем, и тогда я оставлю большие чаевые за твою работу.
+
+НЕОБХОДИМО ПОЛНОСТЬЮ ВЫПОЛНИТЬ ВСЕ ПУНКТЫ И ВСЕ УСЛОВИЯ ОПИСАННЫЕ ВЫШЕ, И ПРЕДОСТАВИТЬ ПРОГРАММУ С ПОЛНОЙ РЕАЛИЗАЦИЕЙ ВСЕЙ РАБОТЫ.
+
+---
+
+from numpy import *
+
+
+def netInit(mx, nt):
+    net = [0.0] * nt
+    for i in range(nt):
+        net[i] = [0.0] * mx
+
+    return net
+
+
+def netBorders(net, mx, nt, x, t):
+    for i in range(mx):
+        net[0][i] = sin(x[i])
+
+    for i in range(1, nt):
+        net[i][0] = 0.0
+
+    for i in range(1, nt):
+        net[i][mx - 1] = exp(-1 * t[i])
+
+
+def netAnalitycFunc(net, mx, nt, x, t):
+    for i in range(nt):
+        for j in range(mx):
+            net[i][j] = exp(-1 * t[i]) * sin(x[j])
+
+def netErrorFunc(netError, net, netAnalytical, mx, nt):
+    for i in range(nt):
+        for j in range(mx):
+            netError[i][j] = net[i][j] - netAnalytical[i][j]
+
+
+def printNet(net, nt):
+    for i in range(nt - 1, -1, -1):
+        print(net[i])
+
+---
+
+from SecondaryFunc import *
+from matplotlib.pyplot import *
+from scipy.linalg import *
+from seaborn import *
+from pandas import *
+
+print("Select scheme: explicit(1), implicit(2)\n\nChoice:", end="")
+c = int(input())
+# c = 2
+if (c == 1):
+    print("\n===== Explicit solution scheme =====\n")
+    n = 1000  # для t
+    m = 35  # для x
+    T = 1
+
+    x = linspace(0, pi / 2, m)
+    t = linspace(0, T, n)
+
+    h = (pi / 2) / m
+    tau = T / n
+
+    net = netInit(m, n)
+    netBorders(net, m, n, x, t)
+
+    # если меньше 0.5, то сразу рушится
+    print(tau / (h ** 2))
+
+    for i in range(n - 1):
+        for j in range(1, m - 1):
+            net[i + 1][j] = (tau * ((net[i][j + 1] - 2 * net[i][j] + net[i][j - 1]) / (h * h))) + net[i][j]
+
+    netAnalytical = netInit(m, n)
+    netAnalitycFunc(netAnalytical, m, n, x, t)
+
+    netError = netInit(m, n)
+    netErrorFunc(netError, net, netAnalytical, m, n)
+
+    net_df = DataFrame(net)
+    net_analytical_df = DataFrame(netAnalytical)
+    net_error_df = DataFrame(netError)
+
+    figure(figsize=(18, 6))
+
+    subplot(1, 3, 1)
+    heatmap(net_df, cmap='viridis', xticklabels=round(m / 10), yticklabels=round(n / 10))
+    title('Heatmap of the net matrix')
+    xlabel('Space (x)')
+    ylabel('Time (t)')
+
+    subplot(1, 3, 2)
+    heatmap(net_analytical_df, cmap='viridis', xticklabels=round(m / 10), yticklabels=round(n / 10))
+    title('Heatmap of the netAnalytics matrix')
+    xlabel('Space (x)')
+    ylabel('Time (t)')
+
+    subplot(1, 3, 3)
+    heatmap(net_error_df, cmap='coolwarm', xticklabels=round(m / 10), yticklabels=round(n / 10))
+    title('Heatmap of the netError matrix')
+    xlabel('Space (x)')
+    ylabel('Time (t)')
+    tight_layout()
+    show()
+else:
+    print("\n===== Implicit solution scheme =====\n")
+    n = 500 # для t
+    m = 500  # для x
+    T = 1
+
+    x = linspace(0, pi / 2, m)
+    t = linspace(0, T, n)
+
+    h = (pi / 2) / m
+    tau = T / n
+    lmbd = tau / (h ** 2)
+
+    net = netInit(m, n)
+    netBorders(net, m, n, x, t)
+
+    print(tau / (h ** 2))
+
+    slau = netInit(m, m)
+    f = [0] * m
+
+    for i in range(n - 1):
+        for j in range(1, m - 1):
+            slau[j][j] = -(1 + 2 * lmbd)
+            f[j] = -1 * net[i][j]
+
+        f[0] = net[i + 1][0]
+        slau[0][0] = 1
+        slau[0][1] = 0
+
+        slau[m - 1][m - 2] = 0
+        #из-за этого условия пробой
+        slau[m - 1][m - 1] = 1
+        f[m - 1] = net[i][m - 1]
+
+        for j in range(1, m - 1):
+            slau[j][j + 1] = lmbd
+            slau[j][j - 1] = lmbd
+
+        # for j in range(m):
+        #     print(slau[j])
+        # print()
+        # print(f)
+        # print(net[i])
+        # print()
+
+        temp = solve(slau, f)
+        for j in range(1, m - 1):
+            net[i + 1][j] = temp[j]
+
+    # printNet(net, n)
+
+    netAnalytical = netInit(m, n)
+    netAnalitycFunc(netAnalytical, m, n, x, t)
+
+    netError = netInit(m, n)
+    netErrorFunc(netError, net, netAnalytical, m, n)
+
+    net_df = DataFrame(net)
+    net_analytical_df = DataFrame(netAnalytical)
+    net_error_df = DataFrame(netError)
+
+    figure(figsize=(18, 6))
+
+    subplot(1, 3, 1)
+    heatmap(net_df, cmap='viridis', xticklabels=round(m / 10), yticklabels=round(n / 10))
+    title('Heatmap of the net matrix')
+    xlabel('Space (x)')
+    ylabel('Time (t)')
+
+    subplot(1, 3, 2)
+    heatmap(net_analytical_df, cmap='viridis', xticklabels=round(m / 10), yticklabels=round(n / 10))
+    title('Heatmap of the netAnalytics matrix')
+    xlabel('Space (x)')
+    ylabel('Time (t)')
+
+    subplot(1, 3, 3)
+    heatmap(net_error_df, cmap='coolwarm', xticklabels=round(m / 10), yticklabels=round(n / 10))
+    title('Heatmap of the netError matrix')
+    xlabel('Space (x)')
+    ylabel('Time (t)')
+    tight_layout()
+    show()
+
+---
+
+Такое решение предложил мой товарищ.
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def explicit_scheme(dx, dt, T):
+    """
+    Реализация явной разностной схемы для решения уравнения.
+
+    Аргументы:
+    dx -- шаг по x
+    dt -- шаг по t
+    T -- значение времени T
+
+    Возвращает:
+    u_explicit -- массив значений решения
+    """
+    L = int(np.pi / 2 / dx) + 1
+    N = int(T / dt) + 1
+
+    x = np.linspace(0, np.pi / 2, L)
+    t = np.linspace(0, T, N)
+
+    u_explicit = np.zeros((N, L))
+    u_explicit[0, :] = np.sin(x)
+
+    r = dt / dx ** 2
+
+    for n in range(N - 1):
+        for i in range(1, L - 1):
+            u_explicit[n + 1, i] = (1 - 2 * r) * u_explicit[n, i] + r * (u_explicit[n, i - 1] + u_explicit[n, i + 1])
+
+        u_explicit[n + 1, -1] = np.exp(-t[n + 1])
+
+    return u_explicit
+
+
+def implicit_scheme(dx, dt, T):
+    """
+    Реализация неявной разностной схемы для решения уравнения.
+
+    Аргументы:
+    dx -- шаг по x
+    dt -- шаг по t
+    T -- значение времени T
+
+    Возвращает:
+    u_implicit -- массив значений решения
+    """
+    L = int(np.pi / 2 / dx) + 1
+    N = int(T / dt) + 1
+
+    x = np.linspace(0, np.pi / 2, L)
+    t = np.linspace(0, T, N)
+
+    u_implicit = np.zeros((N, L))
+    u_implicit[0, :] = np.sin(x)
+
+    r = dt / dx ** 2
+    A = np.zeros((L - 2, L - 2))
+    A[range(L - 2), range(L - 2)] = 1 + 2 * r
+    A[range(L - 3), range(1, L - 2)] = -r
+    A[range(1, L - 2), range(L - 3)] = -r
+
+    for n in range(N - 1):
+        b = u_implicit[n, 1:L - 1].copy()
+        b[0] += r * u_implicit[n + 1, 0]
+        b[-1] += r * u_implicit[n + 1, -1]
+
+        u_implicit[n + 1, 1:L - 1] = np.linalg.solve(A, b)
+        u_implicit[n + 1, 0] = 0
+        u_implicit[n + 1, -1] = np.exp(-t[n + 1])
+
+    return u_implicit
+
+
+def plot_solutions(x, t, u_explicit, u_implicit, exact_solution):
+    """
+    Построение графиков решений.
+
+    Аргументы:
+    x -- массив значений x
+    t -- массив значений t
+    u_explicit -- массив значений решения для явной схемы
+    u_implicit -- массив значений решения для неявной схемы
+    exact_solution -- массив значений точного решения
+    """
+    X, T = np.meshgrid(x, t)
+
+    fig = plt.figure(figsize=(10, 6))
+    ax1 = fig.add_subplot(1, 2, 1, projection='3d')
+    ax1.plot_surface(X, T, u_explicit, cmap='viridis')
+    ax1.set_xlabel('x')
+    ax1.set_ylabel('t')
+    ax1.set_zlabel('u')
+    ax1.set_title('Явная схема')
+
+    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+    ax2.plot_surface(X, T, u_implicit, cmap='viridis')
+    ax2.set_xlabel('x')
+    ax2.set_ylabel('t')
+    ax2.set_zlabel('u')
+    ax2.set_title('Неявная схема')
+
+    fig2, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+    # график явной схемы
+    axs[0].plot(x, u_explicit[-1], label='Явная схема')
+    axs[0].set_xlabel('x')
+    axs[0].set_ylabel('u')
+    axs[0].set_title('Явная схема в последний момент времени')
+    axs[0].legend()
+
+    # график неявной схемы
+    axs[1].plot(x, u_implicit[-1], label='Неявная схема')
+    axs[1].set_xlabel('x')
+    axs[1].set_ylabel('u')
+    axs[1].set_title('Неявная схема в последний момент времени')
+    axs[1].legend()
+
+    # график сравнения явной и неявной схемы с точным решением
+    axs[2].plot(x, u_explicit[-1], label='Явная схема')
+    axs[2].plot(x, u_implicit[-1], label='Неявная схема')
+    axs[2].plot(x, exact_solution, label='Точное решение')
+    axs[2].set_xlabel('x')
+    axs[2].set_ylabel('u')
+    axs[2].set_title('Сравнение решений')
+    axs[2].legend()
+
+    plt.show()
+
+
+
+def main():
+    dx = np.pi / 20
+    dt = 0.001
+    T = 10.0
+
+    x = np.linspace(0, np.pi / 2, int(np.pi / 2 / dx) + 1)
+    t = np.arange(0, T + dt, dt)
+
+    u_exact = np.exp(-t[:, np.newaxis]) * np.sin(x)
+
+    u_explicit = explicit_scheme(dx, dt, T)
+    u_implicit = implicit_scheme(dx, dt, T)
+
+    # Вычислите абсолютные ошибки
+    error_explicit = np.abs(u_exact - u_explicit)
+    error_implicit = np.abs(u_exact - u_implicit)
+
+    plot_solutions(x, t, u_explicit, u_implicit, u_exact[-1])
+
+    print("Точное решение:")
+    print(u_exact[-1])  # Вывод последней строки точных результатов
+
+    print("\nЯвная разностная схема:")
+    print(u_explicit[-1])  # Вывод последней строки результатов явной схемы
+    print("\nУстойчива: Да" if u_explicit[-1].max() < np.inf else "Устойчива: Нет")
+    # Выведите абсолютные ошибки в последний момент времени T
+    print("\nАбсолютная ошибка явной разностной схемы:")
+    print(error_explicit[-1])
+
+    print("\nНеявная разностная схема:")
+    print(u_implicit[-1])  # Вывод последней строки результатов неявной схемы
+    print("\nУстойчива: Да" if u_implicit[-1].max() < np.inf else "Устойчива: Нет")
+    print("\nАбсолютная ошибка неявной разностной схемы:")
+    print(error_implicit[-1])
+
+    print("\nСравнительная таблица явной:")
+    for i in range(11):
+        print(f"Точное решение: {u_exact[-1][i]} -- Явная разностная схема: {u_explicit[-1][i]} -- Абсолютная ошибка явной разностной схемы: {error_explicit[-1][i]} ")
+
+    print("\nСравнительная таблица неявной:")
+    for i in range(11):
+        print(
+            f"Точное решение: {u_exact[-1][i]} -- Неявная разностная схема:: {u_implicit[-1][i]} -- Абсолютная ошибка неявной разностной схемы: {error_implicit[-1][i]}")
+
+
+if __name__ == '__main__':
+    main()
+
+---
+
+Это решение предложенное мной, но оно не соответствует полностью необходим условиям. И так, первый вопрос, обьясни и покажи на примерах кода все различия наших вариантов решения задачи, подробно прокомментируй алгоритмы решения явной схемой, как у меня, так и у товарища, а так же по не явной схеме у обоих, не забудь рассказать про то как реализована проверка на устойчивость, у меня и у товарища.
+
